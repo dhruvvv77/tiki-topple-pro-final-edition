@@ -323,6 +323,23 @@
         </div>
     </div>
 
+    <!-- ========== PASS DEVICE MODAL ========== -->
+    <div id="pass-modal" class="modal-overlay hidden">
+        <div class="modal glass-panel pass-modal-inner animate-in">
+            <div class="pass-icon">🤝</div>
+            <h2 class="gradient-text" style="font-size:1.8rem;">Pass the Device</h2>
+            <p id="pass-message" style="color:var(--text-secondary);font-size:0.95rem;line-height:1.5;margin:4px 0 10px;">
+                Pass the device to the next player.
+            </p>
+            <div class="pass-warning">
+                <span>👀</span> Make sure nobody else is looking at your secret tokens!
+            </div>
+            <button id="ready-btn" class="btn primary-btn" style="margin-top:10px;">
+                <span>✅</span> I Am Ready
+            </button>
+        </div>
+    </div>
+
     <!-- Game Over Modal -->
     <div id="game-over-modal" class="modal-overlay hidden">
         <canvas id="confetti-canvas"></canvas>
