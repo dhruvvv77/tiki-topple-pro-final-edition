@@ -62,13 +62,18 @@ const missionEl = document.getElementById('secret-card');
 const scoreListEl = document.getElementById('scoreboard-list');
 const actionInstr = document.getElementById('action-instruction');
 const btnEndTurn = document.getElementById('end-turn-btn');
-const passModal = document.getElementById('pass-modal');
-const passMsg = document.getElementById('pass-message');
-const btnReady = document.getElementById('ready-btn');
 const endModal = document.getElementById('game-over-modal');
 const btnRestart = document.getElementById('restart-btn');
 const actionLogEl = document.getElementById('action-log');
 const cancelSelBtn = document.getElementById('cancel-selection-btn');
+
+// Turn notification (side panel)
+const turnNotifEl = document.getElementById('turn-notif');
+const turnNotifTitle = document.getElementById('turn-notif-title');
+const turnNotifMsg = document.getElementById('turn-notif-msg');
+const turnNotifSkip = document.getElementById('turn-notif-skip');
+const turnNotifProgress = document.getElementById('turn-notif-progress');
+let turnNotifTimer = null;
 
 // ====================================================
 // ============ HOME SCREEN SYSTEMS ====================
@@ -683,7 +688,7 @@ function initGame(names) {
     updateUIForCurrentPlayer();
     renderScores();
     addLogEntry('system', '🎮 Game started! Good luck!');
-    showPassModal(players[0].name, true);
+    showTurnNotification(players[0].name, true);
 }
 
 // ====================================================
@@ -1053,23 +1058,60 @@ btnEndTurn.addEventListener('click', () => {
         return;
     }
 
+    // Blur secrets before switching
+    missionEl.classList.add('blurred');
     updateUIForCurrentPlayer();
     renderScores();
-    showPassModal(players[currentPlayerIndex].name, false);
+    showTurnNotification(players[currentPlayerIndex].name, false);
 });
 
-function showPassModal(name, isFirst) {
-    passMsg.textContent = isFirst
-        ? `Welcome! Pass the device to ${name} to start. 🎮`
-        : `Pass the device to ${name}.`;
-    passModal.classList.remove('hidden');
+// ====================================================
+// Turn Notification — Non-blocking side panel
+// ====================================================
+function showTurnNotification(name, isFirst) {
+    // Clear any existing timer
+    if (turnNotifTimer) { clearTimeout(turnNotifTimer); turnNotifTimer = null; }
+
+    // Blur the secret tokens so peeking is prevented
+    missionEl.classList.add('blurred');
+
+    // Set content
+    turnNotifTitle.textContent = isFirst ? `🎮 Welcome!` : `🔄 Next Turn`;
+    turnNotifMsg.textContent = isFirst
+        ? `Pass the device to ${name}. Don't peek at their tokens!`
+        : `Pass to ${name} — don't look at the screen! 👀`;
+
+    // Reset & show
+    turnNotifEl.classList.remove('hidden', 'dismissing');
+
+    // Restart progress bar animation
+    turnNotifProgress.classList.remove('animating');
+    void turnNotifProgress.offsetWidth;  // force reflow
+    turnNotifProgress.classList.add('animating');
+
+    // Auto-dismiss after 5 seconds
+    turnNotifTimer = setTimeout(() => dismissTurnNotif(), 5000);
 }
 
-btnReady.addEventListener('click', () => {
-    passModal.classList.add('hidden');
-    // Re-render after modal closes so tokens are fresh
-    renderMission(players[currentPlayerIndex]);
-});
+function dismissTurnNotif() {
+    if (turnNotifTimer) { clearTimeout(turnNotifTimer); turnNotifTimer = null; }
+
+    // Slide-out animation
+    turnNotifEl.classList.add('dismissing');
+    setTimeout(() => {
+        turnNotifEl.classList.add('hidden');
+        turnNotifEl.classList.remove('dismissing');
+
+        // Unblur secrets for the current player
+        missionEl.classList.remove('blurred');
+        renderMission(players[currentPlayerIndex]);
+    }, 350);
+}
+
+// Skip button
+if (turnNotifSkip) {
+    turnNotifSkip.addEventListener('click', () => dismissTurnNotif());
+}
 
 btnRestart.addEventListener('click', () => {
     endModal.classList.add('hidden');
