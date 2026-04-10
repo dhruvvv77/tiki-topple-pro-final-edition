@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tiki Topple — Board2Code Hackathon 2026</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <meta name="description"
+        content="A premium digital implementation of Tiki Topple — a turn-based strategic stacking game for the NPC Board2Code Hackathon 2026.">
+</head>
+
+<body>
+
+    <!-- Animated Background Canvas -->
+    <canvas id="bg-canvas"></canvas>
+
+    <!-- ========== LANDING / HOME SCREEN ========== -->
+    <div id="home-screen" class="fullscreen-layer">
+        <!-- Parallax layers -->
+        <div class="parallax-scene" id="parallax-scene">
+            <!-- Sky gradient layer -->
+            <div class="parallax-layer sky-layer"></div>
+
+            <!-- Clouds floating -->
+            <div class="parallax-layer clouds-layer" data-depth="0.1">
+                <div class="cloud cloud-1"></div>
+                <div class="cloud cloud-2"></div>
+                <div class="cloud cloud-3"></div>
+                <div class="cloud cloud-4"></div>
+                <div class="cloud cloud-5"></div>
+            </div>
+
+            <!-- Totem pillars -->
+            <div class="parallax-layer totems-layer" data-depth="0.3">
+                <img src="assets/wooden-totem.png" alt="Left totem" class="totem-img totem-left" id="totem-left">
+                <img src="assets/wooden-totem.png" alt="Right totem" class="totem-img totem-right" id="totem-right">
+            </div>
+
+            <!-- Center tiki face -->
+            <div class="parallax-layer center-layer" data-depth="0.2">
+                <div class="center-tiki-wrapper">
+                    <img src="assets/stone-tiki-face.png" alt="Stone Tiki" class="stone-tiki-img" id="stone-tiki">
+                    <div class="tiki-glow"></div>
+                </div>
+            </div>
+
+            <!-- Tiki torches -->
+            <div class="parallax-layer torches-layer" data-depth="0.35">
+                <div class="torch torch-left">
+                    <img src="assets/tiki-torch.png" alt="Torch" class="torch-img">
+                    <div class="flame-glow"></div>
+                </div>
+                <div class="torch torch-right">
+                    <img src="assets/tiki-torch.png" alt="Torch" class="torch-img">
+                    <div class="flame-glow"></div>
+                </div>
+            </div>
+
+            <!-- Parrot -->
+            <div class="parallax-layer parrot-layer" data-depth="0.4">
+                <img src="assets/parrot.png" alt="Parrot" class="parrot-img" id="parrot">
+            </div>
+
+            <!-- Title overlay -->
+            <div class="parallax-layer title-layer" data-depth="0.15">
+                <div class="home-title-group">
+                    <h1 class="tiki-title" id="home-title">TIKI TOPPLE</h1>
+                    <p class="tiki-subtitle">The Tactical Game of Totem Domination</p>
+                    <p class="tiki-hackathon">🌿 NPC Board2Code Hackathon 2026 🌿</p>
+                </div>
+            </div>
+
+            <!-- Foliage frame -->
+            <div class="parallax-layer foliage-layer" data-depth="0.5">
+                <img src="assets/tropical-leaves.png" alt="" class="foliage-top-left">
+                <img src="assets/tropical-leaves.png" alt="" class="foliage-top-right">
+                <img src="assets/tropical-leaves.png" alt="" class="foliage-bottom-left">
+                <img src="assets/tropical-leaves.png" alt="" class="foliage-bottom-right">
+            </div>
+
+            <!-- Animated river -->
+            <canvas id="river-canvas" class="river-canvas"></canvas>
+        </div>
+
+        <!-- Home buttons -->
+        <div class="home-buttons" id="home-buttons">
+            <button id="play-btn" class="btn home-btn primary-btn">
+                <span>🎮</span> Enter the Jungle
+            </button>
+            <button id="howto-btn" class="btn home-btn secondary-btn">
+                <span>📖</span> How to Play
+            </button>
+        </div>
+
+        <!-- Audio controls -->
+        <div class="audio-controls" id="audio-controls">
+            <button id="audio-toggle" class="audio-btn" title="Toggle jungle sounds">
+                <span class="audio-icon" id="audio-icon">🔇</span>
+            </button>
+            <div class="audio-label">Jungle Sounds</div>
+        </div>
+
+        <!-- Floating particles canvas -->
+        <canvas id="particle-canvas" class="particle-canvas"></canvas>
+    </div>
+
+    <!-- ========== HOW TO PLAY MODAL ========== -->
+    <div id="howto-modal" class="modal-overlay hidden">
+        <div class="modal glass-panel howto-modal animate-in">
+            <button class="modal-close-btn" id="howto-close">✕</button>
+            <div class="howto-header">
+                <div class="logo-icon">📜</div>
+                <h2 class="gradient-text" style="font-size:1.8rem;">How to Play</h2>
+            </div>
+            <div class="howto-content">
+                <div class="howto-rule">
+                    <span class="howto-num">1</span>
+                    <div>
+                        <strong>Setup:</strong> 9 colorful tiki tokens are randomly stacked on the totem pole. Each player receives secret tokens to protect.
+                    </div>
+                </div>
+                <div class="howto-rule">
+                    <span class="howto-num">2</span>
+                    <div>
+                        <strong>Tiki Up:</strong> Move any tiki UP by 1, 2, or 3 positions on the totem.
+                    </div>
+                </div>
+                <div class="howto-rule">
+                    <span class="howto-num">3</span>
+                    <div>
+                        <strong>Tiki Topple:</strong> Send any tiki crashing down to the bottom of the totem.
+                    </div>
+                </div>
+                <div class="howto-rule">
+                    <span class="howto-num">4</span>
+                    <div>
+                        <strong>Tiki Toast:</strong> Eliminate the bottom tiki from the game entirely! 🔥
+                    </div>
+                </div>
+                <div class="howto-rule">
+                    <span class="howto-num">5</span>
+                    <div>
+                        <strong>Scoring:</strong> Top 3 positions score: 1st = 9pts, 2nd = 7pts, 3rd = 5pts. Player with highest total wins!
+                    </div>
+                </div>
+            </div>
+            <button id="howto-got-it" class="btn primary-btn">Got It! 🌴</button>
+        </div>
+    </div>
+
+    <!-- ========== SETUP SCREEN ========== -->
+    <div id="setup-screen" class="modal-overlay hidden">
+        <div class="modal glass-panel setup-modal animate-in">
+            <div class="setup-logo">
+                <div class="logo-icon">🌴</div>
+                <h1 class="gradient-text" style="font-size:2.8rem; margin-bottom:4px;">TIKI TOPPLE</h1>
+                <p class="setup-subtitle">🌿 Jungle Totem Challenge — NPC Hackathon 2026 🌿</p>
+            </div>
+
+            <div class="setup-section">
+                <span class="label">Number of Players</span>
+                <div class="player-count-selector">
+                    <button class="count-btn selected" data-count="2" id="count-2">2</button>
+                    <button class="count-btn" data-count="3" id="count-3">3</button>
+                    <button class="count-btn" data-count="4" id="count-4">4</button>
+                </div>
+            </div>
+
+            <div class="setup-section">
+                <span class="label">Player Names</span>
+                <div id="player-name-inputs"></div>
+            </div>
+
+            <button id="start-game-btn" class="btn primary-btn">
+                <span>🦁</span> Start Game
+            </button>
+        </div>
+    </div>
+
+    <!-- ========== MAIN GAME ========== -->
+    <div id="app" class="hidden">
+
+        <!-- Sidebar Left: Info & Scores -->
+        <aside id="sidebar-left" class="glass-panel">
+            <div class="player-info-card">
+                <span class="label">Current Turn</span>
+                <h2 id="current-player-name">Player 1</h2>
+                <div class="player-avatar" id="player-avatar">P1</div>
+                <div class="turn-counter">
+                    Turn <span id="turn-number">1</span> <span class="turn-slash">/</span> <span id="turn-max">25</span>
+                </div>
+                <div class="turn-progress-bar">
+                    <div class="turn-progress-fill" id="turn-progress-fill"></div>
+                </div>
+            </div>
+
+            <div class="mission-section">
+                <span class="label">🔒 Your Secret Tokens</span>
+                <div id="secret-card" class="glass-card secret-card"></div>
+                <p class="mission-hint">Score = sum of your tokens' final rank points</p>
+            </div>
+
+            <div class="scores-section">
+                <span class="label">📊 Standings</span>
+                <ul id="scoreboard-list"></ul>
+            </div>
+
+            <div class="log-section">
+                <span class="label">📜 Action Log</span>
+                <div id="action-log" class="action-log"></div>
+            </div>
+        </aside>
+
+        <!-- Main Center: TOTEM POLE -->
+        <main id="board-container">
+            <header class="board-header">
+                <h1 class="gradient-text">TIKI TOPPLE</h1>
+            </header>
+
+            <div id="totem-area">
+                <!-- Rank labels on the left -->
+                <div id="rank-labels"></div>
+                <!-- The vertical totem stack -->
+                <div id="totem-pole">
+                    <!-- Tokens rendered by JS, top-to-bottom -->
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Sidebar Right: Actions -->
+        <aside id="sidebar-right" class="glass-panel">
+            <div class="hand-header">
+                <span class="label">⚡ Actions</span>
+                <p id="action-instruction" class="action-instruction">Choose one action per turn.</p>
+            </div>
+
+            <div class="actions-container">
+                <div class="action-group">
+                    <span class="label">Tiki Up</span>
+                    <p class="action-group-desc">Pick any tiki and move it UP by 1, 2, or 3 spots</p>
+                    <div class="action-buttons">
+                        <button class="action-btn move-btn" data-action="tikiup" data-count="1" id="act-move-1">
+                            <span class="action-icon">⬆️</span>
+                            <div class="action-text">
+                                <span class="action-title">Tiki Up 1</span>
+                                <span class="action-sub">Move a tiki up 1 position</span>
+                            </div>
+                        </button>
+                        <button class="action-btn move-btn" data-action="tikiup" data-count="2" id="act-move-2">
+                            <span class="action-icon">⏫</span>
+                            <div class="action-text">
+                                <span class="action-title">Tiki Up 2</span>
+                                <span class="action-sub">Move a tiki up 2 positions</span>
+                            </div>
+                        </button>
+                        <button class="action-btn move-btn" data-action="tikiup" data-count="3" id="act-move-3">
+                            <span class="action-icon">🔝</span>
+                            <div class="action-text">
+                                <span class="action-title">Tiki Up 3</span>
+                                <span class="action-sub">Move a tiki up 3 positions</span>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="action-group">
+                    <span class="label">Tiki Topple</span>
+                    <p class="action-group-desc">Send any tiki crashing down to the bottom</p>
+                    <div class="action-buttons">
+                        <button class="action-btn topple-btn" data-action="topple" id="act-topple">
+                            <span class="action-icon">⬇️</span>
+                            <div class="action-text">
+                                <span class="action-title">Tiki Topple</span>
+                                <span class="action-sub">Pick a tiki → send to bottom</span>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="action-group">
+                    <span class="label">Tiki Toast</span>
+                    <p class="action-group-desc">Eliminate the bottom tiki from the game</p>
+                    <div class="action-buttons">
+                        <button class="action-btn toast-btn" data-action="toast" id="act-toast">
+                            <span class="action-icon">🔥</span>
+                            <div class="action-text">
+                                <span class="action-title">Tiki Toast</span>
+                                <span class="action-sub">Bottom tiki is eliminated!</span>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Cancel selection button -->
+                <button id="cancel-selection-btn" class="btn secondary-btn hidden">
+                    ✕ Cancel Selection
+                </button>
+            </div>
+
+            <div class="controls">
+                <button id="end-turn-btn" class="btn primary-btn" disabled>Confirm Move</button>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Turn Notification (side dialogue) -->
+    <div id="turn-notif" class="turn-notif hidden">
+        <div class="turn-notif-inner">
+            <div class="turn-notif-icon">🎴</div>
+            <div class="turn-notif-content">
+                <p class="turn-notif-title" id="turn-notif-title">Next Turn</p>
+                <p class="turn-notif-msg" id="turn-notif-msg">Player 2's turn</p>
+            </div>
+            <button class="turn-notif-skip" id="turn-notif-skip" title="Skip">✕</button>
+        </div>
+        <div class="turn-notif-timeline">
+            <div class="turn-notif-progress" id="turn-notif-progress"></div>
+        </div>
+    </div>
+
+    <!-- Game Over Modal -->
+    <div id="game-over-modal" class="modal-overlay hidden">
+        <canvas id="confetti-canvas"></canvas>
+        <div class="modal glass-panel game-over-modal">
+            <div class="game-over-header">
+                <div class="trophy-icon">🏆</div>
+                <h2>Game Over!</h2>
+            </div>
+            <div id="final-stats"></div>
+            <button id="restart-btn" class="btn primary-btn">🔄 Play Again</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
